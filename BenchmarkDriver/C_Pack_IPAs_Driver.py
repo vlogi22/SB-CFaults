@@ -35,32 +35,32 @@ class C_Pack_IPAs_Driver(BenchmarkDriver):
         years = [d for d in os.listdir(self._submissions_dir) if d.startswith('year')]
         for year in years:
             year_dir = os.path.join(self._submissions_dir, year)
-            
+
             # Process lab directories
             labs = [d for d in os.listdir(year_dir) if d.startswith('lab')]
             for lab in labs:
                 lab_dir = os.path.join(year_dir, lab)
-                
+
                 self._logger.info(f"Compiling [ year: {year} | lab: {lab} ]")
-                
+
                 # Process exercise directories
                 exercises = [d for d in os.listdir(lab_dir) if d.startswith('ex')]
                 for ex in exercises:
                     ex_dir = os.path.join(lab_dir, ex)
-                    
+
                     # Process submission directories
                     submissions = [d for d in os.listdir(ex_dir) if d.startswith('ex') and not d.endswith('.c')]
                     for sub in submissions:
                         sub_dir = os.path.join(ex_dir, sub)
-                        
+
                         # Process C files
                         c_files = [f for f in os.listdir(sub_dir) if f.endswith('.c')]
                         for c_file in c_files:
                             c_file_path = os.path.join(sub_dir, c_file)
-                            
+
                             compiled_program_folder = sub_dir.replace(self._submissions_dir, self._results_dir)
                             os.makedirs(compiled_program_folder, exist_ok=True)
-                            
+
                             if self._coverage_calculator.compile_source(c_file_path, compiled_program_folder):
                                 total_compiled += 1
                             else:
@@ -77,42 +77,46 @@ class C_Pack_IPAs_Driver(BenchmarkDriver):
     def run_tests(self):
         tests = self.get_test_files()
         sbfl = SBFL()
-        
+
         # Process year directories
         years = [d for d in os.listdir(self._results_dir) if d.startswith('year')]
         for year in years:
             year_dir = os.path.join(self._results_dir, year)
-            
+
             # Process lab directories
             labs = [d for d in os.listdir(year_dir) if d.startswith('lab')]
             for lab in labs:
                 lab_dir = os.path.join(year_dir, lab)
-                
+
                 self._logger.info(f"Running tests for [ year: {year} | lab: {lab} ]")
-                
+
                 # Process exercise directories
                 exercises = [d for d in os.listdir(lab_dir) if d.startswith('ex')]
                 for ex in exercises:
                     ex_dir = os.path.join(lab_dir, ex)
-                    
+
                     self._logger.debug(f"exercise: {ex} | Path: {ex_dir}")
-                    
+
                     # Process submission directories
                     submissions = [d for d in os.listdir(ex_dir) if d.startswith('ex')]
                     for sub in submissions:
                         sub_dir = os.path.join(ex_dir, sub)
-                        
+
                         self._logger.debug(f"submission: {sub} | Path: {sub_dir}")
-                        
+
                         object_name = next(f for f in os.listdir(sub_dir) if f.endswith(".o"))
                         object = os.path.join(sub_dir, object_name)
-                        
+
                         # Create a results folder for this version
                         outputs_folder = os.path.join(sub_dir, "outputs")
                         os.makedirs(outputs_folder, exist_ok=True)
-                        
+
                         n_passed, n_failed, line_freq = self._coverage_calculator.run_tests(object, tests[f'{lab}_{ex}'], output_folder=outputs_folder)
-            
+
+                        # Remove the entire output directory
+                        if os.path.exists(outputs_folder):
+                            shutil.rmtree(outputs_folder)
+
                         # Set up the SBFL instance with the results
                         ranks_folder = os.path.join(sub_dir, "ranks")
                         os.makedirs(ranks_folder, exist_ok=True)
@@ -145,7 +149,7 @@ class C_Pack_IPAs_Driver(BenchmarkDriver):
 
                     tests[f'{lab}_{ex}'].append((input_path, output_path))
 
-                    self._logger.debug(f"Test case recorded: f'{lab}_{ex}' | {input_path} | {output_path}")
+                    self._logger.debug(f"Test case recorded: {lab}_{ex} | {input_path} | {output_path}")
 
         self._logger.info(f"Total test cases found: {len(tests)}")
         return tests

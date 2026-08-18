@@ -19,12 +19,12 @@ class BenchmarkDriver(ABC):
         self._logger = logging.getLogger(self.__class__.__name__)
         self._logger.setLevel(logging.DEBUG if debug else logging.INFO)
         
-        # Console handler
-        console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setFormatter(
-            logging.Formatter('%(name)s - %(levelname)s - %(message)s')
-        )
-        self._logger.addHandler(console_handler)
+        # # Console handler
+        # console_handler = logging.StreamHandler(sys.stdout)
+        # console_handler.setFormatter(
+        #     logging.Formatter('%(name)s - %(levelname)s - %(message)s')
+        # )
+        # self._logger.addHandler(console_handler)
         
         # File handler - creates .log file in current folder
         log_filename = f"{self.__class__.__name__}.log"

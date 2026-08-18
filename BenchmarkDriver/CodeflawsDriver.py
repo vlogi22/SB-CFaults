@@ -90,6 +90,10 @@ class CodeflawsDriver(BenchmarkDriver):
                 
                 n_passed, n_failed, line_freq = self._coverage_calculator.run_tests(object_file_path, tests[f'{buggy_version}'], output_folder=outputs_folder)
 
+                # Remove the entire output directory
+                if os.path.exists(outputs_folder):
+                    shutil.rmtree(outputs_folder)
+
                 # Set up the SBFL instance with the results
                 ranks_folder = os.path.join(bug_dir, "ranks")
                 os.makedirs(ranks_folder, exist_ok=True)
@@ -123,7 +127,7 @@ class CodeflawsDriver(BenchmarkDriver):
 
                 tests[f'{buggy_version}'].append((input_path, output_path))
 
-                self._logger.debug(f"Test case recorded: f'{buggy_version}' | {input_path} | {output_path}")
+                self._logger.debug(f"Test case recorded: {buggy_version} | {input_path} | {output_path}")
                 
 
         self._logger.info(f"Total test cases found: {len(tests)}")

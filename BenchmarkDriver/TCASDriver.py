@@ -52,6 +52,7 @@ class TCASDriver(BenchmarkDriver):
         # Remove the entire results directory
         if os.path.exists(self._results_dir):
             shutil.rmtree(self._results_dir)
+        os.sync()
 
     def run_tests(self):
         tests = self.get_test_files()
@@ -75,6 +76,10 @@ class TCASDriver(BenchmarkDriver):
 
             n_passed, n_failed, line_freq = self._coverage_calculator.run_tests(tcas_object, tests['tcas'], output_folder=outputs_folder)
 
+            # Remove the entire output directory
+            if os.path.exists(outputs_folder):
+                shutil.rmtree(outputs_folder)
+                        
             # Set up the SBFL instance with the results
             ranks_folder = os.path.join(version_path, "ranks")
             os.makedirs(ranks_folder, exist_ok=True)
@@ -97,7 +102,7 @@ class TCASDriver(BenchmarkDriver):
                 
                 tests['tcas'].append((input_path, output_path))
 
-                self._logger.debug(f"Test case recorded: tcas | {input_path} | {output_path}")
+                self._logger.debug(f"Test case recorded: {input_path} | {output_path}")
 
         self._logger.info(f"Total test cases found: {len(tests)}")
         return tests

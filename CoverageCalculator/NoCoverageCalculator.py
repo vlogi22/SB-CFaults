@@ -15,12 +15,12 @@ class NoCoverageCalculator:
         self._logger = logging.getLogger(self.__class__.__name__)
         self._logger.setLevel(logging.DEBUG if debug else logging.INFO)
         
-        # Console handler
-        console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setFormatter(
-            logging.Formatter('%(name)s - %(levelname)s - %(message)s')
-        )
-        self._logger.addHandler(console_handler)
+        # # Console handler
+        # console_handler = logging.StreamHandler(sys.stdout)
+        # console_handler.setFormatter(
+        #     logging.Formatter('%(name)s - %(levelname)s - %(message)s')
+        # )
+        # self._logger.addHandler(console_handler)
         
         # File handler - creates .log file in current folder
         log_filename = f"{self.__class__.__name__}.log"
@@ -49,7 +49,7 @@ class NoCoverageCalculator:
             
         return True
 
-    def run_tests(self, program_object: str, tests: List[Tuple[str, str]], output_folder: str) -> Tuple[int, int, dict[int, list[int, int]]]:
+    def run_tests(self, program_object: str, tests: List[Tuple[str, str]], output_folder: str, input_from_args: bool = False) -> Tuple[int, int, dict[int, list[int, int]]]:
         """Run the compiled executable with the provided tests and generate coverage data.
 
         Args:
@@ -69,8 +69,10 @@ class NoCoverageCalculator:
             diff_file = os.path.join(output_folder, f'{test_name}.diff')
             
             try:
-                #result = subprocess.run(f"{program_object} $(cat {input_file}) > {my_output_file}", shell=True, capture_output=True, text=True, timeout=3, check=False)
-                result = subprocess.run(f"{program_object} < {input_file} > {my_output_file}", shell=True, capture_output=True, text=True, timeout=3, check=False)
+                if input_from_args:
+                    result = subprocess.run(f"{program_object} $(cat {input_file}) > {my_output_file}", shell=True, capture_output=True, text=True, timeout=3, check=False)
+                else:
+                    result = subprocess.run(f"{program_object} < {input_file} > {my_output_file}", shell=True, capture_output=True, text=True, timeout=3, check=False)
                             
                 diff_result = subprocess.run(f"diff {expected_output_file} {my_output_file} > {diff_file}", shell=True, capture_output=True, text=True)
                 

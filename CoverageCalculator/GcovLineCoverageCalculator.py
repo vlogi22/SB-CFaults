@@ -45,7 +45,7 @@ class GcovLineCoverageCalculator(NoCoverageCalculator):
             
         return True
     
-    def run_tests(self, program_object: str, tests: List[Tuple[str, str]], output_folder: str) -> Tuple[int, int, dict[int, list[int, int]]]:
+    def run_tests(self, program_object: str, tests: List[Tuple[str, str]], output_folder: str, input_from_args: bool = False) -> Tuple[int, int, dict[int, list[int, int]]]:
         """Run the compiled executable with the provided tests and generate coverage data.
 
         Args:
@@ -73,9 +73,11 @@ class GcovLineCoverageCalculator(NoCoverageCalculator):
             line_coverage_file = ""
             
             try:
-                #result = subprocess.run(f"{program_object} $(cat {input_file}) > {my_output_file}", shell=True, capture_output=True, text=True, timeout=3, check=False)
-                print(f"{program_object} < {input_file} > {my_output_file}")
-                result = subprocess.run(f"{program_object} < {input_file} > {my_output_file}", shell=True, capture_output=True, text=True, timeout=3, check=False)
+                self._logger.debug(f"Running Test for: {program_object} | {input_file}")
+                if input_from_args:
+                    result = subprocess.run(f"{program_object} $(cat {input_file}) > {my_output_file}", shell=True, capture_output=True, text=True, timeout=3, check=False)
+                else:
+                    result = subprocess.run(f"{program_object} < {input_file} > {my_output_file}", shell=True, capture_output=True, text=True, timeout=3, check=False)
                 
                 # Get the diff result to determine if the test passed or failed
                 diff_result = subprocess.run(f"diff {expected_output_file} {my_output_file} > {diff_file}", shell=True, capture_output=True, text=True)
