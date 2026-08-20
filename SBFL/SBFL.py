@@ -11,16 +11,16 @@ class SpectrumCoefficient(Enum):
 
 class SBFL:
 
-    def __init__(self, line_freq: dict[int, tuple[int, int]] = None, total_passed: int = 0, total_failed: int = 0):
+    def __init__(self, line_freq: dict[int, list[int, int]] = None, total_passed: int = 0, total_failed: int = 0):
         """
         Args:
-            line_freq (dict[int, tuple[int, int]]): A dictionary mapping line numbers to tuples of (passed, failed) counts.
+            line_freq (dict[int, list[int, int]]): A dictionary mapping line numbers to tuples of (passed, failed) counts.
             total_passed (int): The total number of passed test cases.
             total_failed (int): The total number of failed test cases.
         """
         self.set_parameters(line_freq, total_passed, total_failed)
 
-    def set_parameters(self, line_freq: dict[int, tuple[int, int]], total_passed: int, total_failed: int):
+    def set_parameters(self, line_freq: dict[int, list[int, int]], total_passed: int, total_failed: int):
         self.__line_freq = line_freq
         self.__N_S = total_passed
         self.__N_F = total_failed
@@ -110,14 +110,14 @@ class SBFL:
 
         return dstar_scores
 
-    def scores_to_rank(self, scores: dict[int, float]) -> dict[int, tuple[int, int]]:
+    def scores_to_rank(self, scores: dict[int, float]) -> dict[int, list[int, int]]:
         """ Returns the rank of each line based on their scores.
 
         Args:
             scores (dict[int, float]): A dictionary mapping line numbers to their scores.
             
         Returns:
-            dict[int, tuple[int, int]]: A dictionary mapping line numbers to their rank and score.
+            dict[int, list[int, int]]: A dictionary mapping line numbers to their rank and score.
         """
         sorted_lines = sorted(scores.items(), key=lambda item: item[1], reverse=True)
         rank_dict = {}
@@ -132,19 +132,19 @@ class SBFL:
 
         return rank_dict
 
-    def get_rank(self, coefficient_list: list[SpectrumCoefficient] = [], export_folder: str = None) -> dict[SpectrumCoefficient, dict[int, tuple[int, int]]]:
+    def get_rank(self, coefficient_list: list[SpectrumCoefficient] = [], export_folder: str = None) -> dict[SpectrumCoefficient, dict[int, list[int, int]]]:
         """ Returns the rank of each line based on the specified spectrum coefficient.
 
         Args:
             spectrum_coefficient (SpectrumCoefficient): The spectrum coefficient to use for ranking.
 
         Returns:
-            dict[SpectrumCoefficient, dict[int, tuple[int, int]]]: A dictionary mapping spectrum coefficients to their corresponding rank dictionaries.
+            dict[SpectrumCoefficient, dict[int, list[int, int]]]: A dictionary mapping spectrum coefficients to their corresponding rank dictionaries.
                         type              {line_no, (rank, score)}
         """
         if export_folder:
             os.makedirs(export_folder, exist_ok=True)
-            export_path = os.path.join(export_folder, "sbfl_parameters.csv")
+            export_path = os.path.join(export_folder, "sbfl_parameters.json")
             with open(export_path, 'w') as f:
                 f.write("{")
                 comma = False
@@ -182,7 +182,7 @@ class SBFL:
         if export_folder:
             os.makedirs(export_folder, exist_ok=True)
             for spectrum_coefficient, rank_dict in result.items():
-                export_path = os.path.join(export_folder, f"{spectrum_coefficient.value}_rank.csv")
+                export_path = os.path.join(export_folder, f"{spectrum_coefficient.value}_rank.json")
                 with open(export_path, 'w') as f:
                     f.write("{")
                     comma = False
@@ -198,11 +198,11 @@ class SBFL:
                 
         return result
 
-    def print_rank(self, rank_list: dict[SpectrumCoefficient, dict[int, tuple[int, int]]]) -> None:
+    def print_rank(self, rank_list: dict[SpectrumCoefficient, dict[int, list[int, int]]]) -> None:
         """ Prints the rank of each line for each spectrum coefficient.
 
         Args:
-            rank_list (dict[SpectrumCoefficient, dict[int, tuple[int, int]]]): A dictionary mapping
+            rank_list (dict[SpectrumCoefficient, dict[int, list[int, int]]]): A dictionary mapping
                 spectrum coefficients to their corresponding rank dictionaries, as returned by get_rank().
         """
         for coefficient, rank_dict in rank_list.items():

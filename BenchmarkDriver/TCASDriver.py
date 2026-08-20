@@ -74,7 +74,7 @@ class TCASDriver(BenchmarkDriver):
             outputs_folder = os.path.join(version_path, "outputs")
             os.makedirs(outputs_folder, exist_ok=True)
 
-            n_passed, n_failed, line_freq = self._coverage_calculator.run_tests(tcas_object, tests['tcas'], output_folder=outputs_folder)
+            n_passed, n_failed, line_freq = self._coverage_calculator.run_tests(tcas_object, tests['tcas'], output_folder=outputs_folder, input_from_args= True)
 
             # Remove the entire output directory
             if os.path.exists(outputs_folder):
